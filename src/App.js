@@ -1,23 +1,65 @@
-import logo from './logo.svg';
-import './App.css';
+import { useSelector, useDispatch } from "react-redux";
+import { Books } from "./components/Books";
+import { Form } from "./components/Form";
+import { useState, useEffect } from "react";
+import { getBooks, deleteAll } from "./redux/actions";
 
 function App() {
+  const dispatch = useDispatch();
+
+  const books = useSelector((state) => state.operationsReducer);
+
+  useEffect(() => {
+    dispatch(getBooks());
+  }, [dispatch]);
+
+  const [editFormVisibility, setEditFormVisibility] = useState(false);
+  const [bookToBeEdited, setBookToBeEdited] = useState("");
+
+  // click on edit icon
+  const handleEdit = (bookObj) => {
+    setEditFormVisibility(true);
+    setBookToBeEdited(bookObj);
+  };
+
+  // click on back button
+  const cancelUpdate = () => {
+    setEditFormVisibility(false);
+    setBookToBeEdited("");
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="custom-container">
+      <h1 className="heading">
+        Приложение Book-List с использованием React | Редукс | Firebase{" "}
+      </h1>
+      <br></br>
+      <Form
+        editFormVisibility={editFormVisibility}
+        cancelUpdate={cancelUpdate}
+        bookToBeEdited={bookToBeEdited}
+      />
+      {books.length > 0 ? (
+        <>
+          <Books
+            books={books}
+            editFormVisibility={editFormVisibility}
+            handleEdit={handleEdit}
+          />
+          {books.length > 1 && (
+            <button
+              className="btn btn-outline-danger btn-md delete-all"
+              onClick={() => dispatch(deleteAll())}
+            >
+              УДАЛИТЬ ВСЕ
+            </button>
+          )}
+        </>
+      ) : (
+        <div className="message-box">
+          Книг не найдено, добавьте книгу, чтобы отобразить ее здесь{" "}
+        </div>
+      )}
     </div>
   );
 }
